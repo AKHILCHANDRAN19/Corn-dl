@@ -38,13 +38,15 @@ for video_url in video_urls:
     # Get the format code selected by the user
     format_code = choose_format(video_url)
 
-    # yt-dlp options to download the selected format
+    # yt-dlp options to download the selected format using aria2c
     ydl_opts = {
         'format': format_code,  # Download the selected format
         'outtmpl': os.path.join(download_path, '%(title)s.%(ext)s'),  # Save in Downloads folder
+        'external_downloader': 'aria2c',  # Use aria2c as the downloader
+        'external_downloader_args': ['-x', '16', '-k', '1M']  # 16 connections, 1M chunk size
     }
 
-    # Download the video in the selected quality
+    # Download the video in the selected quality using aria2c for speed
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
         ydl.download([video_url])
 
