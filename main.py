@@ -31,6 +31,12 @@ def choose_format(video_url):
     selected_format = formats[choice - 1]['format_id']
     return selected_format
 
+# Ask the user to choose the download method
+download_method = int(input("Choose download method: 1 for yt-dlp, 2 for aria2: "))
+if download_method not in [1, 2]:
+    print("Invalid choice. Please enter 1 or 2.")
+    exit()
+
 # Loop through each video URL
 for video_url in video_urls:
     video_url = video_url.strip()  # Remove leading/trailing spaces
@@ -38,16 +44,29 @@ for video_url in video_urls:
     # Get the format code selected by the user
     format_code = choose_format(video_url)
 
-    # yt-dlp options to download the selected format using aria2c
-    ydl_opts = {
-        'format': format_code,  # Download the selected format
-        'outtmpl': os.path.join(download_path, '%(title)s.%(ext)s'),  # Save in Downloads folder
-        'external_downloader': 'aria2c',  # Use aria2c as the downloader
-        'external_downloader_args': ['-x', '16', '-k', '1M']  # 16 connections, 1M chunk size
-    }
+    # Set yt-dlp options based on the chosen download method
+    if download_method == 1:
+        # yt-dlp options to download the selected format
+        ydl_opts = {
+            'format': format_code,  # Download the selected format
+            'outtmpl': os.path.join(download_path, '%(title)s.%(ext)s')  # Save in Downloads folder
+        }
 
-    # Download the video in the selected quality using aria2c for speed
-    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-        ydl.download([video_url])
+        # Download the video using yt-dlp
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            ydl.download([video_url])
+
+    elif download_method == 2:
+        # yt-dlp options to download the selected format using aria2c
+        ydl_opts = {
+            'format': format_code,  # Download the selected format
+            'outtmpl': os.path.join(download_path, '%(title)s.%(ext)s'),  # Save in Downloads folder
+            'external_downloader': 'aria2c',  # Use aria2c as the downloader
+            'external_downloader_args': ['-x', '16', '-k', '1M']  # 16 connections, 1M chunk size
+        }
+
+        # Download the video in the selected quality using aria2c for speed
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            ydl.download([video_url])
 
     print(f"Video downloaded in the selected quality and saved to {download_path}.\n")
